@@ -5,8 +5,9 @@ import (
 	"dataset"
 )
 
-func PearsonScore(prop1 []dataset.DataProperty, prop2 []dataset.DataProperty) float64 {
+type PearsonMetric struct{}
 
+func (PearsonMetric) Distance(prop1 []dataset.DataProperty, prop2 []dataset.DataProperty) float64 {
 
 	commonRatingCount := 0
 
@@ -16,7 +17,7 @@ func PearsonScore(prop1 []dataset.DataProperty, prop2 []dataset.DataProperty) fl
 
 	for _, x := range prop1 {
 		for _, y := range prop2 {
-			if x.Name == y.Name {
+			if x.Id == y.Id {
 
 				commonRatingCount++
 
@@ -25,7 +26,6 @@ func PearsonScore(prop1 []dataset.DataProperty, prop2 []dataset.DataProperty) fl
 				sum1Sq += math.Pow(float64(x.Value), 2)
 				sum2Sq += math.Pow(float64(y.Value), 2)
 				totalSum += float64(x.Value * y.Value)
-
 			}
 		}
 	}
