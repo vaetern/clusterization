@@ -13,14 +13,12 @@ func main() {
 
 	runtime.GOMAXPROCS(Processes)
 
+	dataProvider := ds.NewDataProviderMoviesCsv("storage/data_small.csv","storage/movies_small.csv")
 
-	dataProvider := ds.NewDataProviderCsv("data.csv")
+	usedMetric := metrics.PearsonMetric{}
 
-	euclMetric := metrics.EuclideanMetric{}
-
-	strategy := strat.NewFindClosestNodeStrategy(euclMetric)
+	strategy := strat.NewFindClosestNodeStrategy(usedMetric)
 
 	strategy.Process(dataProvider.Nodes)
-
 
 }

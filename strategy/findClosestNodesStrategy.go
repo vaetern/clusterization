@@ -52,10 +52,7 @@ func (s FindClosestNodeStrategy) Process(Nodes []dataset.DataNode) {
 	}()
 
 
-
-
 	var result []measuredNodesPair
-
 
 	for pair := range outCh {
 		if pair.metricValue == 1 {
@@ -71,7 +68,7 @@ func (s FindClosestNodeStrategy) Process(Nodes []dataset.DataNode) {
 }
 
 func (s FindClosestNodeStrategy) reportClosest(Nodes []dataset.DataNode, offsetStart int64, offsetFinish int64, outCh chan<- measuredNodesPair, wg *sync.WaitGroup) {
-	fmt.Println("->", "worker up", "{", offsetStart,"-",offsetFinish,"}")
+	fmt.Println("-w", offsetStart, "O")
 
 	curDistance := .0
 	for index, x := range Nodes {
@@ -79,7 +76,7 @@ func (s FindClosestNodeStrategy) reportClosest(Nodes []dataset.DataNode, offsetS
 			for _, y := range Nodes {
 				if x.Name != y.Name {
 					curDistance = s.Metric.Distance(x.Properties, y.Properties)
-					if curDistance == 1 {
+					if curDistance > 0.5 {
 						outCh <- measuredNodesPair{x, y, curDistance}
 					}
 				}
@@ -87,7 +84,7 @@ func (s FindClosestNodeStrategy) reportClosest(Nodes []dataset.DataNode, offsetS
 		}
 	}
 
-	fmt.Println("->", "worker X", "{", offsetStart,"-",offsetFinish,"}")
+	fmt.Println("-w", offsetStart, "X")
 	defer wg.Done()
 }
 

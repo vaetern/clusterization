@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-type DataProviderCsv struct {
+type DataProviderMoviesCsv struct {
 	Nodes []DataNode
 }
 
@@ -21,9 +21,9 @@ const colPropMapName = 1
 
 
 //userId, movieId, rating, timestamp
-func NewDataProviderCsv(filename string) (dp DataProviderCsv) {
+func NewDataProviderMoviesCsv(filename string, fileprop string) (dp DataProviderMoviesCsv) {
 
-	dp = DataProviderCsv{}
+	dp = DataProviderMoviesCsv{}
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -32,7 +32,7 @@ func NewDataProviderCsv(filename string) (dp DataProviderCsv) {
 	}
 	defer file.Close()
 
-	mappedPropNames :=  parsePropertiesNames("movies.csv")
+	mappedPropNames :=  parsePropertiesNames(fileprop)
 
 	reader := csv.NewReader(file)
 
@@ -55,18 +55,21 @@ func NewDataProviderCsv(filename string) (dp DataProviderCsv) {
 		if ok{
 			value, err = strconv.ParseFloat(record[colPropValue], 64)
 			if err == nil {
-				r.Properties = append(r.Properties, DataProperty{record[colPropId], mappedPropNames[record[colPropId]],value*2})
+				r.Properties = append(r.Properties, DataProperty{record[colPropId], mappedPropNames[record[colPropId]],value})
 			}
 		} else {
+			value, err = strconv.ParseFloat(record[colPropValue], 64)
 			mappedNodes[record[colNodeId]] =
 				&DataNode{
 					Name: mappedPropNames[record[colNodeId]],
-					Properties: []DataProperty{},
+					Properties: []DataProperty{{record[colPropId], mappedPropNames[record[colPropId]],value}},
 				}
 		}
 
 		lineCount += 1
 	}
+
+	fmt.Println("->", filename, ":", lineCount)
 
 	for _, v :=range mappedNodes{
 		dp.Nodes = append(dp.Nodes, *v)
