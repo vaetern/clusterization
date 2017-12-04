@@ -50,23 +50,27 @@ func NewDataProviderMoviesCsv(filename string, fileprop string) (dp DataProvider
 			return
 		}
 
+		conv,_ := strconv.Atoi(record[colNodeId])
+		if conv < int(300){
+
 		r, ok := mappedNodes[record[colNodeId]]
 
-		if ok{
+		if ok {
 			value, err = strconv.ParseFloat(record[colPropValue], 64)
 			if err == nil {
-				r.Properties = append(r.Properties, DataProperty{record[colPropId], mappedPropNames[record[colPropId]],value})
+				r.Properties = append(r.Properties, DataProperty{record[colPropId], mappedPropNames[record[colPropId]], value})
 			}
 		} else {
 			value, err = strconv.ParseFloat(record[colPropValue], 64)
 			mappedNodes[record[colNodeId]] =
 				&DataNode{
-					Name: mappedPropNames[record[colNodeId]],
-					Properties: []DataProperty{{record[colPropId], mappedPropNames[record[colPropId]],value}},
+					Name:       mappedPropNames[record[colNodeId]],
+					Properties: []DataProperty{{record[colPropId], mappedPropNames[record[colPropId]], value}},
 				}
 		}
 
 		lineCount += 1
+	}
 	}
 
 	fmt.Println("->", filename, ":", lineCount)

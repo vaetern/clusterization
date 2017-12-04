@@ -11,12 +11,6 @@ type FindClosestNodeStrategy struct {
 	Metric metrics.Metric
 }
 
-type measuredNodesPair struct {
-	node1       dataset.DataNode
-	node2       dataset.DataNode
-	metricValue float64
-}
-
 func NewFindClosestNodeStrategy(m metrics.Metric) (strat *FindClosestNodeStrategy) {
 	strat = &FindClosestNodeStrategy{Metric: m}
 
