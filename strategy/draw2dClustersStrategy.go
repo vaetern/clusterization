@@ -33,7 +33,7 @@ func NewDraw2dClustersStrategy(metric metrics.Metric) (s Draw2dClustersStrategy)
 
 func (s Draw2dClustersStrategy) Process(Nodes []dataset.DataNode) {
 
-	rate := 0.00005
+	rate := 0.0005
 
 	var timelapse [][]point
 	fmt.Println("->data population start")
@@ -45,7 +45,7 @@ func (s Draw2dClustersStrategy) Process(Nodes []dataset.DataNode) {
 	rand.Seed(time.Now().UTC().UnixNano())
 	var loc []point
 	for i := 0; i < n; i++ {
-		loc = append(loc, point{rand.Float64()*100, rand.Float64()*100})
+		loc = append(loc, point{rand.Float64(), rand.Float64()})
 	}
 
 	var fakedist [][]float64
@@ -59,7 +59,7 @@ func (s Draw2dClustersStrategy) Process(Nodes []dataset.DataNode) {
 
 	lasterror := 99999999999999999.1
 
-	for m := 0; m < 100; m++ {
+	for m := 0; m < 10; m++ {
 		fmt.Println("->iteration", m)
 		for i := 0; i < n; i++ {
 			for j := 0; j < n; j++ {
@@ -87,7 +87,7 @@ func (s Draw2dClustersStrategy) Process(Nodes []dataset.DataNode) {
 				if (*realdist)[j][k] != 0 {
 					errorterm = (fakedist[j][k] - (*realdist)[j][k]) / (*realdist)[j][k]
 				} else {
-					errorterm = (*realdist)[j][k]
+					errorterm = fakedist[j][k]
 				}
 
 				grad[k][0] += ((loc[k].x - loc[j].x) / fakedist[j][k]) * errorterm
@@ -193,6 +193,17 @@ func createAnimatedImage(timelapse *[][]point) {
 	var w, h, midpoint int = 1001, 1001, 501
 	steps := len(*timelapse)
 
+	var value, topValue float64 = .0, .0
+
+	for _, u := range (*timelapse)[len(*timelapse)-1]{
+		value = math.Max(math.Abs(u.x),math.Abs(u.y))
+		if value > topValue{topValue = value}
+	}
+
+	relCoef := float64(midpoint)/topValue
+
+
+	fmt.Println("magnitude:", relCoef)
 	fmt.Println("steps:", steps)
 
 	var images []*image.Paletted
@@ -201,11 +212,11 @@ func createAnimatedImage(timelapse *[][]point) {
 	for step := 0; step < steps; step++ {
 		img := image.NewPaletted(image.Rect(0, 0, w, h), palette.WebSafe)
 		images = append(images, img)
-		delays = append(delays, 500)
+		delays = append(delays, 4)
 		for x := 0; x < w; x++ {
 			for y := 0; y < h; y++ {
 				for _, z := range (*timelapse)[step] {
-					if int(math.Floor(float64(midpoint) + z.x*5)) == x && int(float64(midpoint) + math.Floor(z.y*5)) == y {
+					if int(math.Floor(float64(midpoint) + z.x*relCoef)) == x && int(float64(midpoint) + math.Floor(z.y*relCoef)) == y {
 						img.Set(x, y, color.White)
 					}
 				}
@@ -218,8 +229,10 @@ func createAnimatedImage(timelapse *[][]point) {
 		fmt.Println(err)
 		return
 	}
+
 	defer f.Close()
 	gif.EncodeAll(f, &gif.GIF{
+		LoopCount:steps,
 		Image: images,
 		Delay: delays,
 	})

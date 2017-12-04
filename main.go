@@ -13,11 +13,11 @@ func main() {
 
 	runtime.GOMAXPROCS(Processes)
 
-	//dataProvider := ds.NewDataProviderMoviesCsv("storage/data.csv","storage/movies.csv")
-	dataProvider := ds.NewDataProviderIrisCsv("storage/iris.csv")
-	usedMetric := metrics.PearsonMetric{}
+	dataProvider := ds.NewDataProviderMoviesCsv("storage/data.csv","storage/movies.csv")
+	//dataProvider := ds.NewDataProviderIrisCsv("storage/iris.csv")
+	usedMetric := metrics.CanberraMetric{}
 	strategy := strat.NewDraw2dClustersStrategy(usedMetric)
-	strategy.Process(dataProvider.AsNodes())
+	strategy.Process(dataProvider.Nodes)
 
 	//dataProvider := ds.NewDataProviderIrisCsv("storage/iris.csv")
 	//strategy := strat.NewKmeansClusteringStrategy(&dataProvider)
